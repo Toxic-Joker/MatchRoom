@@ -1,4 +1,4 @@
-# InPlay Studio
+# MatchRoom
 
 A self-hosted football overlay for watchalong streamers. It puts a live scoreboard, stats, lineups, a radar and full-screen moments on your stream, held back to match your stream delay so the overlay never spoils a goal.
 
@@ -9,11 +9,11 @@ It runs on your own machine, with no subscription. Match data comes from [API-Fo
 You need [Node.js 20 or newer](https://nodejs.org).
 
 ```bash
-git clone https://github.com/Toxic-Joker/inplay-studio.git
+git clone https://github.com/Toxic-Joker/MatchRoom.git
 ```
 
 ```bash
-cd inplay-studio && npm install
+cd MatchRoom && npm install
 ```
 
 ```bash

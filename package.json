@@ -1,5 +1,5 @@
 {
-  "name": "inplay-studio",
+  "name": "matchroom",
   "version": "3.0.0",
   "description": "Live football broadcast overlay for OBS",
   "main": "server/index.js",

@@ -12,7 +12,7 @@ const { server, tokens, start, close } = createApp({ dataDir });
 
 server.listen(PORT, HOST, () => {
   const base = `http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${PORT}`;
-  console.log(`\nInPlay Studio is running.\n`);
+  console.log(`\nMatchRoom is running.\n`);
   console.log(`  Control room:  ${base}/control/#token=${tokens.control}`);
   console.log(`  OBS sources are listed in the control room, under "Add to OBS".\n`);
   start();

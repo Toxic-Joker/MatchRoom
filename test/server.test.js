@@ -9,7 +9,7 @@ const { applyAction, defaultShow, ActionError, reviveShow } = require('../server
 const { ApiFootballProvider } = require('../server/providers/apiFootball');
 
 async function boot(env = {}) {
-  const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'inplay-test-'));
+  const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'matchroom-test-'));
   const instance = createApp({ dataDir, env });
   await new Promise((resolve) => instance.server.listen(0, '127.0.0.1', resolve));
   instance.start();
