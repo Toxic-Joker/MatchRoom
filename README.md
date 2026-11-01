@@ -1,123 +1,185 @@
-# InPlay Studio
+<p align="center">
+  <img src="docs/media/banner.png" alt="MatchRoom, shown as a football scoreboard reading Match 9-0 Room, Live" width="100%">
+</p>
 
-A self-hosted, real-time football broadcast overlay system for streamers. It sits between the [API-Football](https://api-football.com) live data feed and OBS Studio, letting you trigger professional-grade broadcast graphics — scoreboard, goal/card/sub animations, stats, standings, lineups, radar, other live matches, penalty shootouts, knockout brackets, and socials — from a single Control Panel, with a live camera window reserved for your own webcam.
+<p align="center">
+  <b>A self-hosted football overlay for watchalong streamers.</b><br>
+  Live score, stats, lineups, radar and goal moments on your stream, automatically, and held back until your viewers see the action.
+</p>
 
-Two overlay formats ship out of the box: a 16:9 overlay for YouTube/Twitch and a 9:16 overlay for TikTok/Reels/Shorts.
+<p align="center">
+  <a href="#start-in-3-steps"><b>Start in 3 steps</b></a> &nbsp;·&nbsp;
+  <a href="#never-spoil-a-goal">Stream delay</a> &nbsp;·&nbsp;
+  <a href="#everything-you-can-put-on-air">Widgets</a> &nbsp;·&nbsp;
+  <a href="#questions">Questions</a>
+</p>
 
-For the full design spec (every panel, every socket event, layout details), see [`INPLAY_STUDIO_SPEC.md`](./INPLAY_STUDIO_SPEC.md).
+<p align="center">
+  <img src="docs/media/demo.gif" alt="Widgets slide in around a streamer's camera one by one, then a goal fills the screen and the score changes to 2-1" width="100%">
+</p>
 
-## Quick start
+<p align="center"><sub>Recorded from the built-in rehearsal match. The clubs are fictional and the camera is an illustration.<br>The recording skips a few seconds before the goal.</sub></p>
 
-### 1. Prerequisites
+## From webcam to matchday broadcast
 
-- [Node.js 20+](https://nodejs.org) and npm (or Docker, see below)
-- A free or paid [API-Football](https://dashboard.api-football.com/) API key
+<img src="docs/media/before-after.png" alt="On the left, a plain webcam view. On the right, the same camera surrounded by a scoreboard, stats, lineup, league table and radar" width="100%">
 
-### 2. Install
+You commentate. The overlay follows the match, updating the score and clock and announcing goals, cards and substitutions without anyone touching a button.
+
+## Start in 3 steps
+
+The rehearsal match needs no account or API key, so you can see everything working in a couple of minutes.
+
+### 1. Start it and pick a match
+
+You need [Node.js 20 or newer](https://nodejs.org).
 
 ```bash
-git clone https://github.com/Toxic-Joker/inplay-studio.git
-cd inplay-studio
-npm install
+git clone https://github.com/Toxic-Joker/MatchRoom.git
 ```
-
-### 3. Configure
 
 ```bash
-cp .env.example .env
+cd MatchRoom && npm install
 ```
-
-Edit `.env` and paste your API key:
-
-```env
-API_FOOTBALL_KEY=your_api_football_key_here
-```
-
-### 4. Run
 
 ```bash
 npm start
 ```
 
-Then open:
+Open the private link it prints. That's your control room, and the rehearsal match is already playing.
 
-| Page | URL | Purpose |
+<img src="docs/media/pick-match.png" alt="The Match tab, listing matches by competition with rehearsal speed controls" width="480" align="right">
+
+For real matches:
+
+1. Copy `.env.example` to `.env`.
+2. Add your [API-Football](https://www.api-football.com/) key.
+3. Restart, then pick a match in the **Match** tab.
+
+<br clear="right">
+
+### 2. Light up your widgets
+
+Each button puts a widget on air, and a lit button means it's showing. Each area of the screen holds one widget, so lighting a new one replaces its neighbour.
+
+<img src="docs/media/control-room.png" alt="The control room: a live preview of the overlay, a stream delay control, buttons for each widget, and the score at the stadium next to the score on air" width="100%">
+
+### 3. Add it to OBS
+
+Copy the links from the **Add to OBS** tab and add each one as a **Browser source** in OBS, or in any streaming app with browser sources. No plugin is needed. Turn on **Camera position** in the **Content** tab while you line up your scene.
+
+<img src="docs/media/layers.png" alt="Three layers pulled apart: the widgets on top, your camera in the middle, and the backdrop at the bottom" width="100%">
+
+| Order in the scene | Source | Size |
 |---|---|---|
-| Control Panel | http://localhost:3000/control-panel.html | Where the streamer triggers everything |
-| Main Overlay | http://localhost:3000/main-overlay.html | OBS Browser Source (16:9, 1920×1080) |
-| TikTok Overlay | http://localhost:3000/tiktok-overlay.html | OBS Browser Source (9:16, 1080×1920) |
+| Top | Widgets link | 1920×1080 |
+| Middle | Your camera | Inside the outlined area |
+| Bottom | Backdrop link (optional) | 1920×1080 |
 
-Add the two overlay URLs as **Browser Sources** in OBS at their exact resolutions (1920×1080 and 1080×1920 respectively) — the overlays position everything relative to that fixed canvas size.
+You're live.
 
-### No API key yet?
+## Never spoil a goal
 
-Turn on **Demo Mode** at the top of the Control Panel. It loads a sample match and lets you preview every panel with realistic mock data — no fixture ID or API key required.
+Your stream reaches viewers 20 to 60 seconds after you see the match. An overlay on live data would show the goal before they see it.
 
-## Running with Docker
+<img src="docs/media/delay.png" alt="A timeline. A normal overlay shows 1-0 at the moment of the goal, 30 seconds before viewers see it. MatchRoom, with a 30 second delay, shows 1-0 at the moment viewers see the goal" width="100%">
+
+Enter how far your stream is behind in **Stream delay**, at the top of the control room. All match data then waits until it's due: score, clock, events, stats, radar and other matches. The buttons you press still work instantly.
+
+The control room shows **At the stadium now** next to **On air now**, so you can see what's being held back.
+
+## Everything you can put on air
+
+<img src="docs/media/widgets.png" alt="Gallery of widgets: match stats, lineups, player ratings, pre-match card, 2D and 3D radar, pressure index, penalty shootout, league table, other live matches and the scoreboard" width="100%">
+
+### Full-screen moments
+
+Goals take over the screen on their own. The other screens are one click away, for before kick-off, half time and full time.
+
+<img src="docs/media/screens.png" alt="Full-screen goal card, countdown, final score, 3D radar, league table and knockout bracket" width="100%">
+
+### A look for every competition
+
+The theme follows the competition you're covering. You can also pick one yourself or set your own colours. On-air text comes in English, French, Spanish and Portuguese.
+
+<img src="docs/media/themes.gif" alt="The same overlay cycling through eight colour themes" width="100%">
+
+### Landscape and portrait
+
+<img src="docs/media/portrait.png" alt="The portrait overlay: scoreboard, camera, radar and league table stacked for a phone screen" width="260" align="right">
+
+Portrait links for TikTok and Shorts work the same way, at 1080×1920. They run from the same control room, so one click updates both formats at once.
+
+<br clear="right">
+
+## Built for live use
+
+- **It keeps running.** Close the control room or reload an OBS source and nothing stops. Both catch up the moment they reconnect.
+- **It joins late cleanly.** Starting mid-match doesn't replay old goals and cards.
+- **It handles messy data.** If a goal's scorer arrives late, the name is filled in afterwards. If VAR cancels a goal, the score is corrected on air.
+- **You can step in.** Trigger a goal by hand when you see it first. The data's version then appears as a small banner, not a second celebration.
+- **It works from a Stream Deck.** Add a **Website** action, paste a link from **Add to OBS**, and tick "GET request in background". Those links carry your control token, so keep them private.
+
+## Questions
+
+<details>
+<summary><b>Does the radar show where the ball really is?</b></summary>
+<br>
+
+No. API-Football doesn't provide ball-tracking data, so the radar is an illustration of the match, and the widget says so on screen. Which side is pressing comes from the pressure index, and corners, shots, goals and cards come from the match data. Shots and corners are worked out from changes in the match totals, so they can appear a minute or more late.
+
+Showing the true ball position would need a paid tracking feed. `server/providers/` and `Radar` are where one would connect.
+</details>
+
+<details>
+<summary><b>What does it cost?</b></summary>
+<br>
+
+MatchRoom itself is free for noncommercial use, and you run it on your own machine. Match data needs an API-Football key, which may have its own cost. The free plan has a low daily request limit, and plans can restrict which seasons you can access, so check your dashboard. The server spaces its requests to make your remaining quota last the match, so updates are slower on a small plan.
+
+For commercial use, see the [license](#license).
+</details>
+
+<details>
+<summary><b>Does it show match footage?</b></summary>
+<br>
+
+No. It only shows data and graphics. It's up to you to check that your stream follows your platform's rules and your data plan's terms, and club crests in the data may have their own rights.
+</details>
+
+<details>
+<summary><b>Can I control it from my phone?</b></summary>
+<br>
+
+Yes. The server only accepts connections from your own computer by default. Set `HOST=0.0.0.0` in `.env` to allow other devices on your network. Traffic isn't encrypted, so only do this on a network you trust.
+</details>
+
+<details>
+<summary><b>Can I run it with Docker?</b></summary>
+<br>
+
+Yes. Your settings and tokens are kept in a Docker volume, and the last command shows your control room link.
 
 ```bash
-cp .env.example .env      # then edit it with your API key
-docker compose up -d
+cp .env.example .env
 ```
-
-This builds and runs the whole app in a single container, with `public/` volume-mounted so overlay HTML edits apply without a rebuild.
 
 ```bash
-docker compose logs -f     # view logs
-docker compose restart     # after changing server.js
-docker compose down        # stop
+docker compose up -d --build
 ```
 
-## Using it live
-
-1. On the Control Panel, enter a **Fixture ID** (found via the [API-Football docs](https://api-football.com/documentation) → Fixtures → search by team/date) and click **Start Auto-Sync**.
-2. The panel polls every 20 seconds, updates the scoreboard, and automatically fires full-screen animations for goals, cards, substitutions, half-time, and full-time.
-3. Toggle any panel (Stats, Standings, Lineup, Radar, Other Matches, Penalty, Bracket, Socials) manually at any time — you never need to leave the Control Panel.
-4. Place your OBS webcam/game source **below** the overlay Browser Source in the scene stack — a transparent window is reserved for it (toggle **Show alignment guide** in the Camera card to see exactly where).
-
-## Customising
-
-Everything below is editable live from the Control Panel — no code changes needed for day-to-day use:
-
-- **Followed Teams** — the list of clubs/national teams always shown in "Other Matches", persisted in your browser.
-- **Socials** — one or more handles that the overlay automatically alternates between.
-- **Theme** — accent/kit colors and scoreboard gradient, plus a few competition presets, applied live to every connected overlay.
-- **Background** — any image URL, or auto-pick one based on the tracked competition (falls back to a blurred league badge).
-
-For deeper customisation (fonts, panel sizing, adding a new panel), edit the three files in `public/` — each is a self-contained HTML/CSS/JS file with no build step.
-
-## Project structure
-
+```bash
+docker compose logs studio
 ```
-inplay-studio/
-├── server.js                 # Express + Socket.io backend, API-Football proxy
-├── public/
-│   ├── control-panel.html    # Streamer's dashboard
-│   ├── main-overlay.html     # OBS overlay, 16:9 (1920×1080)
-│   └── tiktok-overlay.html   # OBS overlay, 9:16 (1080×1920)
-├── Dockerfile
-├── docker-compose.yml
-├── .env.example
-└── INPLAY_STUDIO_SPEC.md     # Full design spec
-```
+</details>
 
-## API reference
+<details>
+<summary><b>How do I change it or contribute?</b></summary>
+<br>
 
-All endpoints are served by the backend at `http://localhost:3000`:
-
-| Endpoint | Returns |
-|---|---|
-| `GET /api/match/:fixtureId` | Live score, scorers, time, raw events |
-| `GET /api/statistics/:fixtureId` | Match stats (possession, shots, cards, etc.) |
-| `GET /api/lineups/:fixtureId` | Starting XI, formation, events, captain |
-| `GET /api/standings/:league/:season` | Top 14 league table |
-| `GET /api/live-matches?excludeId=&vipTeams=&leagues=` | Other live matches, filtered |
-| `GET /api/radar/:fixtureId` | Possession %, xG |
-| `GET /api/bracket/:league/:season` | Knockout bracket with two-legged aggregation |
-| `GET /api/penalty/:fixtureId` | Penalty shootout results |
-
-See [`INPLAY_STUDIO_SPEC.md`](./INPLAY_STUDIO_SPEC.md) for full response shapes and the Socket.io event payloads used between the Control Panel and the overlays.
+Run the tests with `npm test` and start a development server with `npm run dev`. [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) explains how it fits together, including how to add a widget or a data source.
+</details>
 
 ## License
 
-[PolyForm Noncommercial 1.0.0](./LICENSE) — free to use, modify, and share for any noncommercial purpose. Commercial use requires a separate agreement with the copyright holder.
+[PolyForm Noncommercial 1.0.0](./LICENSE): free for any noncommercial purpose. Commercial use needs a separate agreement with the copyright holder. Barlow fonts are under the SIL Open Font License, in `public/vendor/fonts`.
