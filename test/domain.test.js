@@ -209,6 +209,18 @@ test('malicious image URLs from the feed are dropped', () => {
   assert.strictEqual(s.away.logo, 'https://x/y.png');
 });
 
+test('changing the rehearsal speed does not move the match clock', async () => {
+  let now = 0;
+  const sim = new SimulatorProvider(60, () => now);
+  await sim.fixture(1001);
+  now = 40000;
+  const before = (await sim.fixture(1001)).fixture.simulated.seconds;
+  sim.setSpeed(1);
+  const after = (await sim.fixture(1001)).fixture.simulated.seconds;
+  assert.strictEqual(after, before);
+  assert.ok(before > 0);
+});
+
 test('a full rehearsal match plays out with the right score story', async () => {
   let now = 0;
   const sim = new SimulatorProvider(60, () => now);

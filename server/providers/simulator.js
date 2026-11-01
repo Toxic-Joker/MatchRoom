@@ -60,7 +60,7 @@ const SCENARIOS = {
 };
 
 const SECONDS = {
-  preEnd: 20, // match seconds before kick-off, so the countdown is visible
+  preEnd: 400, // match seconds before kick-off: 20 real seconds at the default speed
   htLength: 300,
   etBreak: 120,
 };
@@ -112,7 +112,7 @@ class SimulatorProvider {
 
   // Where the match stands, given how long the simulation has been running.
   position(id, scenario) {
-    let t = this.matchSeconds(id) - SECONDS.preEnd * this.speed;
+    let t = this.matchSeconds(id) - SECONDS.preEnd;
     if (t < 0) return { short: 'NS', elapsed: null, clock: 0 };
     if (t < 2820) return { short: '1H', elapsed: Math.min(45, Math.floor(t / 60)), extra: t > 2700 ? 2 : null, clock: t };
     t -= 2820;
@@ -161,7 +161,7 @@ class SimulatorProvider {
     return {
       fixture: {
         id,
-        timestamp: nowSec + (started ? 0 : Math.ceil((SECONDS.preEnd - this.matchSeconds(id) / this.speed))),
+        timestamp: nowSec + (started ? 0 : Math.ceil((SECONDS.preEnd - this.matchSeconds(id)) / this.speed)),
         referee: 'A. Whitfield',
         venue: { name: 'Quayside Ground', city: 'Harbour City' },
         status: { short: pos.short, elapsed: pos.elapsed, extra: pos.extra ?? null },

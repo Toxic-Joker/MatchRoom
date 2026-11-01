@@ -230,7 +230,7 @@ export const WIDGETS = {
   },
   standings: {
     data: (s) => (s.tables.standings ? { ...s.tables.standings } : { none: true }),
-    render: (d, c) => (d.none ? waiting(c.t) : panel('standings', d.title || c.t('table'), crest(d.logo), tableRows(windowAround(d.table, 7), c.t))),
+    render: (d, c) => (d.none ? waiting(c.t) : panel('standings', d.title || c.t('table'), crest(d.logo), tableRows(windowAround(d.table, 6), c.t))),
   },
   standingsFull: {
     data: (s) => (s.tables.standings ? { ...s.tables.standings } : { none: true }),
