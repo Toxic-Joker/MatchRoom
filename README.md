@@ -1,123 +1,104 @@
 # InPlay Studio
 
-A self-hosted, real-time football broadcast overlay system for streamers. It sits between the [API-Football](https://api-football.com) live data feed and OBS Studio, letting you trigger professional-grade broadcast graphics — scoreboard, goal/card/sub animations, stats, standings, lineups, radar, other live matches, penalty shootouts, knockout brackets, and socials — from a single Control Panel, with a live camera window reserved for your own webcam.
+A self-hosted football overlay for watchalong streamers. It puts a live scoreboard, stats, lineups, a radar and full-screen moments on your stream, held back to match your stream delay so the overlay never spoils a goal.
 
-Two overlay formats ship out of the box: a 16:9 overlay for YouTube/Twitch and a 9:16 overlay for TikTok/Reels/Shorts.
+It runs on your own machine, with no subscription. Match data comes from [API-Football](https://www.api-football.com/), and a built-in rehearsal match lets you try everything without an API key.
 
-For the full design spec (every panel, every socket event, layout details), see [`INPLAY_STUDIO_SPEC.md`](./INPLAY_STUDIO_SPEC.md).
+## Start
 
-## Quick start
-
-### 1. Prerequisites
-
-- [Node.js 20+](https://nodejs.org) and npm (or Docker, see below)
-- A free or paid [API-Football](https://dashboard.api-football.com/) API key
-
-### 2. Install
+You need [Node.js 20 or newer](https://nodejs.org).
 
 ```bash
 git clone https://github.com/Toxic-Joker/inplay-studio.git
-cd inplay-studio
-npm install
 ```
-
-### 3. Configure
 
 ```bash
-cp .env.example .env
+cd inplay-studio && npm install
 ```
-
-Edit `.env` and paste your API key:
-
-```env
-API_FOOTBALL_KEY=your_api_football_key_here
-```
-
-### 4. Run
 
 ```bash
 npm start
 ```
 
-Then open:
+The server prints a private link to the control room. Open it, and a rehearsal match starts playing straight away.
 
-| Page | URL | Purpose |
+For real matches, copy `.env.example` to `.env`, add your API-Football key and restart. Then pick a match in the **Match** tab.
+
+## Add it to OBS
+
+The **Add to OBS** tab has the links to copy. Each one is a Browser source, stacked like this:
+
+| Order in the scene | Source | Size |
 |---|---|---|
-| Control Panel | http://localhost:3000/control-panel.html | Where the streamer triggers everything |
-| Main Overlay | http://localhost:3000/main-overlay.html | OBS Browser Source (16:9, 1920×1080) |
-| TikTok Overlay | http://localhost:3000/tiktok-overlay.html | OBS Browser Source (9:16, 1080×1920) |
+| Top | Widgets link (transparent) | 1920×1080 |
+| Middle | Your camera | Inside the outlined area |
+| Bottom | Backdrop link (optional) | 1920×1080 |
 
-Add the two overlay URLs as **Browser Sources** in OBS at their exact resolutions (1920×1080 and 1080×1920 respectively) — the overlays position everything relative to that fixed canvas size.
+Portrait links for TikTok and Shorts work the same way at 1080×1920. Turn on **Camera position** in the **Content** tab while you line up the scene.
 
-### No API key yet?
+## Set your stream delay
 
-Turn on **Demo Mode** at the top of the Control Panel. It loads a sample match and lets you preview every panel with realistic mock data — no fixture ID or API key required.
+YouTube and Twitch reach viewers 20 to 60 seconds after you. Without a delay setting, the score would change before your viewers see the goal.
 
-## Running with Docker
+1. Note how far your stream is behind the live match.
+2. Enter that in **Stream delay** at the top of the control room.
+
+All match data waits until it is due: score, clock, events, stats, radar and other matches. The panel shows both "At the stadium now" and "On air now", so you can see what is being held back. Buttons you press, such as showing a widget, take effect at once.
+
+## During the match
+
+The server follows the match by itself. Closing the control room or reloading an OBS source does not interrupt anything: both catch up immediately when they reconnect.
+
+- **Widgets**: a lit button is on air. Each screen area holds one widget, so lighting one replaces its neighbour.
+- **Trigger by hand**: for when you see a goal before the data does. The data's own version of that goal then appears as a small banner, not a second celebration.
+- **Look**: themes follow the competition automatically. You can also pick one, set your own colours and choose how each event appears. On-air text comes in English, French, Spanish and Portuguese.
+
+### Stream Deck
+
+Add a **Website** action, paste a link from **Add to OBS**, and tick "GET request in background". Links look like `/deck/toggle/radar`, `/deck/hide-all` or `/deck/delay/1`. They carry your control token, so keep them private.
+
+### Using a phone
+
+The server only accepts connections from your own computer by default. To use a phone on the same network, set `HOST=0.0.0.0` in `.env`. Traffic is not encrypted, so only do this on a network you trust.
+
+## What the radar shows
+
+API-Football does not provide ball-tracking data, so **the radar is an illustration of the match, not the ball's real position**. Which side is pressing comes from the pressure index, and corners, shots, goals and cards come from the match data. The widget says this on screen. Shots and corners are worked out from changes in the match totals, so they appear up to a minute late, or more on a small API plan.
+
+Showing the true ball position, with player names and passing lines, would need a paid tracking feed. `server/providers/` and `Radar` are where one would connect.
+
+## API usage
+
+The free API-Football plan has a low daily request limit, and plans can restrict which seasons you can access, so check your dashboard. A single fixture request can carry the events, lineups and stats, and the server spaces its requests to make your remaining daily quota last the match. Expect slower updates on a small plan. The remaining quota shows at the top of the control room.
+
+## Run with Docker
 
 ```bash
-cp .env.example .env      # then edit it with your API key
-docker compose up -d
+cp .env.example .env
 ```
-
-This builds and runs the whole app in a single container, with `public/` volume-mounted so overlay HTML edits apply without a rebuild.
 
 ```bash
-docker compose logs -f     # view logs
-docker compose restart     # after changing server.js
-docker compose down        # stop
+docker compose up -d --build
 ```
 
-## Using it live
-
-1. On the Control Panel, enter a **Fixture ID** (found via the [API-Football docs](https://api-football.com/documentation) → Fixtures → search by team/date) and click **Start Auto-Sync**.
-2. The panel polls every 20 seconds, updates the scoreboard, and automatically fires full-screen animations for goals, cards, substitutions, half-time, and full-time.
-3. Toggle any panel (Stats, Standings, Lineup, Radar, Other Matches, Penalty, Bracket, Socials) manually at any time — you never need to leave the Control Panel.
-4. Place your OBS webcam/game source **below** the overlay Browser Source in the scene stack — a transparent window is reserved for it (toggle **Show alignment guide** in the Camera card to see exactly where).
-
-## Customising
-
-Everything below is editable live from the Control Panel — no code changes needed for day-to-day use:
-
-- **Followed Teams** — the list of clubs/national teams always shown in "Other Matches", persisted in your browser.
-- **Socials** — one or more handles that the overlay automatically alternates between.
-- **Theme** — accent/kit colors and scoreboard gradient, plus a few competition presets, applied live to every connected overlay.
-- **Background** — any image URL, or auto-pick one based on the tracked competition (falls back to a blurred league badge).
-
-For deeper customisation (fonts, panel sizing, adding a new panel), edit the three files in `public/` — each is a self-contained HTML/CSS/JS file with no build step.
-
-## Project structure
-
-```
-inplay-studio/
-├── server.js                 # Express + Socket.io backend, API-Football proxy
-├── public/
-│   ├── control-panel.html    # Streamer's dashboard
-│   ├── main-overlay.html     # OBS overlay, 16:9 (1920×1080)
-│   └── tiktok-overlay.html   # OBS overlay, 9:16 (1080×1920)
-├── Dockerfile
-├── docker-compose.yml
-├── .env.example
-└── INPLAY_STUDIO_SPEC.md     # Full design spec
+```bash
+docker compose logs studio
 ```
 
-## API reference
+The last command shows your control room link. Settings and tokens are kept in a Docker volume.
 
-All endpoints are served by the backend at `http://localhost:3000`:
+## Develop
 
-| Endpoint | Returns |
-|---|---|
-| `GET /api/match/:fixtureId` | Live score, scorers, time, raw events |
-| `GET /api/statistics/:fixtureId` | Match stats (possession, shots, cards, etc.) |
-| `GET /api/lineups/:fixtureId` | Starting XI, formation, events, captain |
-| `GET /api/standings/:league/:season` | Top 14 league table |
-| `GET /api/live-matches?excludeId=&vipTeams=&leagues=` | Other live matches, filtered |
-| `GET /api/radar/:fixtureId` | Possession %, xG |
-| `GET /api/bracket/:league/:season` | Knockout bracket with two-legged aggregation |
-| `GET /api/penalty/:fixtureId` | Penalty shootout results |
+```bash
+npm test
+```
 
-See [`INPLAY_STUDIO_SPEC.md`](./INPLAY_STUDIO_SPEC.md) for full response shapes and the Socket.io event payloads used between the Control Panel and the overlays.
+```bash
+npm run dev
+```
+
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how it fits together, and [docs/COMPARISON.md](docs/COMPARISON.md) for how it compares with the product that inspired it.
 
 ## License
 
-[PolyForm Noncommercial 1.0.0](./LICENSE) — free to use, modify, and share for any noncommercial purpose. Commercial use requires a separate agreement with the copyright holder.
+[PolyForm Noncommercial 1.0.0](./LICENSE). Barlow fonts are under the SIL Open Font License, in `public/vendor/fonts`.
